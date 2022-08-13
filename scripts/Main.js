@@ -5,21 +5,20 @@ let functions = [];
 
 function keyboard() {
         input.onkeydown = (e) => {
-                if (e.keyCode === 13) {
+                if (e.keyCode === 13 && input.value != '') {
                         addToGraph({ content: input.value, color: generatorColors(0.5) })
-                        input.value = "";
+                        input.value = '';
                 }
         }
 }
 
 function stringToFunction(str) {
-        let newFunc;
-        if (str.includes('Math.'))
-                return new Function(["x"], "try{return " + str + "}catch(e){}");
+        if (str.includes('Math.') || /^[0-9x\+\-*.\/\s\()]*$/.test(str))
+                return new Function(["x"], "try{return " + str + "}catch(e){return NaN}");
         try {
                 const mathNode = math.parse(str);
                 const mathCode = mathNode.compile();
-                newFunc = function(x) {
+                return function(x) {
                         const scope = {
                                 x: x,
                         };
@@ -30,11 +29,10 @@ function stringToFunction(str) {
                         }
                 }
         } catch (e) {
-                newFunc = function(x) {
+                return function(x) {
 			return NaN;
 		};
         }
-        return newFunc;
 }
 
 function removeFunction(index) {
@@ -44,9 +42,15 @@ function removeFunction(index) {
 }
 
 function addToGraph(func) {
-        GAME.game.graph.functions.push([stringToFunction(func.content), func.color]);
+        const _function_ = stringToFunction(func.content);
+        if (isNaN(_function_(1))) {
+                toastr.error('Invalid function graph.');
+                return;
+        }
+        GAME.game.graph.functions.push([_function_, func.color]);
         functions.push(func);
         display();
+        toastr.success('Added function graph.');
 }
 
 function display() {
