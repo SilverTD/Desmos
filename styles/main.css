@@ -11,6 +11,16 @@ body {
         overflow-y: hidden;
 }
 
+::-webkit-scrollbar {
+        height: 5px;
+        width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+        background: #CECAC9;
+        border-radius: 5px;
+}
+
 .form {
         position: fixed;
         top: 0;
